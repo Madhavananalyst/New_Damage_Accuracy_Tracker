@@ -139,9 +139,9 @@
   
   .dmg-matrix-layout { width: 100%; overflow-x: auto; }
   
-  /* GRID LAYOUT: 14 Columns to fit PQ Link, PQ Flow, PQ Validator, PQ Paste */
-  .dmg-header { display: grid; grid-template-columns: 35px 55px 120px 110px 95px 160px 80px 120px 110px 80px 90px 70px 110px 30px; gap: 8px; align-items: center; padding: 0 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); border-bottom: 2px solid var(--border); min-width: 1369px; }
-  .dmg-row { display: grid; grid-template-columns: 35px 55px 120px 110px 95px 160px 80px 120px 110px 80px 90px 70px 110px 30px; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; margin-top: 8px; min-width: 1369px; }
+  /* GRID LAYOUT: 15 Columns to fit PQ Link, PQ Flow, PQ Validator, PQ Paste, Issue_2 */
+  .dmg-header { display: grid; grid-template-columns: 35px 55px 108px 98px 88px 148px 74px 108px 98px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; padding: 0 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); border-bottom: 2px solid var(--border); min-width: 1369px; }
+  .dmg-row { display: grid; grid-template-columns: 35px 55px 108px 98px 88px 148px 74px 108px 98px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; margin-top: 8px; min-width: 1369px; }
   
   .dmg-row input, .dmg-row select { width: 100%; font-size: 12px; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
   .row-num { width: 24px; height: 24px; border-radius: 6px; background: var(--surface-alt); color: var(--text-muted); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
@@ -255,10 +255,10 @@
     display: inline-flex !important;
   }
 
-  /* 12-Column wide breakdown matrix row parameters in Focus (Widen evenly using proportional 1fr blocks) */
+  /* 13-Column wide breakdown matrix row parameters in Focus (Widen evenly using proportional 1fr blocks) */
   [data-focus="on"] .dmg-header,
   [data-focus="on"] .dmg-row {
-    grid-template-columns: 45px 2fr 2fr 2fr 3fr 1.5fr 2fr 3fr 1.5fr 2fr 1fr 35px;
+    grid-template-columns: 45px 2fr 2fr 2fr 3fr 1.5fr 2fr 3fr 1.5fr 2fr 2fr 1fr 35px;
     min-width: 0;
     width: 100%;
   }
@@ -422,6 +422,7 @@
               <span class="col-pqflow">PQ Flow</span>
               <span class="col-pqvalidator">PQ Validator</span>
               <span>PQ Paste</span>
+              <span>Issue_2</span>
               <span>Note</span>
               <span></span>
             </div>
@@ -487,7 +488,7 @@
 <div id="toast"></div>
 
 <script>
-const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At'];
+const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2'];
 const CACHE_KEY_QUOTES = "NDAT_QUOTES_DATA_V6";
 const CACHE_KEY_ENTRIES = "NDAT_SAVED_ENTRIES_V6";
 const CACHE_KEY_IDX = "NDAT_CURRENT_IDX_V6";
@@ -837,6 +838,12 @@ function addDamageRow(prefill) {
     <input type="text" class="f-pqvalidator" value="${p.pqValidator || ''}" placeholder="PQ Validator" oninput="saveCurrentState()">
     <button class="btn-pqpaste" onclick="handlePQPaste('${id}')" title="Paste PQ Link/Flow/Validator from clipboard">PQ Paste</button>
     
+    <select class="f-issue2" onchange="saveCurrentState()">
+      <option value="">--</option>
+      <option value="cq removed"${p.issue2 === 'cq removed' ? ' selected' : ''}>cq removed</option>
+      <option value="pq removed"${p.issue2 === 'pq removed' ? ' selected' : ''}>pq removed</option>
+      <option value="cq fn"${p.issue2 === 'cq fn' ? ' selected' : ''}>cq fn</option>
+    </select>
     <input type="text" class="f-note" value="${p.note || ''}" placeholder="Notes..." oninput="saveCurrentState()">
     <button class="btn-del" onclick="removeRow('${id}')">×</button>
   `;
@@ -1013,6 +1020,7 @@ function collectCurrentState() {
         pqFlow: r.querySelector('.f-pqflow').value,
         pqValidator: r.querySelector('.f-pqvalidator').value.trim(),
         
+        issue2: r.querySelector('.f-issue2').value.trim(),
         note: r.querySelector('.f-note').value.trim(),
       });
     }
@@ -1102,7 +1110,7 @@ function buildOutputCSV() {
         q.date, q.oid, q.created, q.dealer, q.qid, q.link, entry.flow,
         r.angle, r.panel, r.damage, r.dmgid, '', r.note, r.issue, r.intensity, r.remarks || '',
         entry.validator || '', r.pqLink || '', r.pqFlow || '', r.pqValidator || '',
-        q.updatedAt || ''
+        q.updatedAt || '', r.issue2 || ''
       ].join('\t'));
     });
   });
