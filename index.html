@@ -808,7 +808,7 @@ function addDamageRow(prefill) {
   row.className = 'dmg-row';
   row.id = id;
   
-  const ISSUE_OPTIONS = ['No Issue','Autoflow FN','Damage not Confirmable in Prequote','Poor Image in Prequote','User Issue','Wrong Panel Name','Multiple IDs for Same Damage','New Id for Existing Damage','Tech Issue','FP'];
+  const ISSUE_OPTIONS = ['No Issue','Prequote FN','Damage not Confirmable in Prequote','Poor Image in Prequote','User Issue','Wrong Panel Name','Multiple IDs for Same Damage','New Id for Existing Damage','Tech Issue','FP'];
   const selectedIssue = p.issue || 'No Issue';
   const issueOpts = ISSUE_OPTIONS.map(o => `<option value="${o}"${selectedIssue === o ? ' selected' : ''}>${o}</option>`).join('');
   const selectedIntensity = p.intensity || 'Minor';
