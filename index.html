@@ -245,9 +245,15 @@
     margin-bottom: 1.25rem;
   }
 
-  /* Hide everything inside the paste container EXCEPT the Paste Button and Report button */
-  [data-focus="on"] .paste-box-inline-container > *:not(button[onclick="handleSmartPaste()"]):not(#quote-link) {
+  /* Hide everything inside the paste container EXCEPT the Paste Button, Report button, and Location field */
+  [data-focus="on"] .paste-box-inline-container > *:not(button[onclick="handleSmartPaste()"]):not(#quote-link):not(#location-inline-field) {
     display: none !important;
+  }
+
+  /* Ensure location field shows inline-flex in focus mode, pushed to far right */
+  [data-focus="on"] #location-inline-field {
+    display: flex !important;
+    margin-left: auto;
   }
 
   /* Ensure the link displays properly as a standard button block in flex */
@@ -289,6 +295,16 @@
     color: var(--teal-dark);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-md);
+  }
+
+  /* Location dropdown dark mode fix - match grid row select appearance */
+  [data-theme="dark"] #f-location {
+    color: var(--teal-dark);
+    background-color: var(--surface);
+  }
+  [data-theme="dark"] #f-location option {
+    background: var(--surface);
+    color: var(--text);
   }
 
 </style>
@@ -406,6 +422,16 @@
             </div>
 
             <button class="btn btn-primary btn-sm" style="padding: 6px 14px; height: 36px; font-weight:600;" onclick="handleSmartPaste()">📋 Paste</button>
+
+            <div class="validator-inline-field" style="height: 36px;" id="location-inline-field">
+              <label for="f-location">Location</label>
+              <select id="f-location" onchange="saveCurrentState()" style="height: 100%; border: none; padding: 0 28px 0 8px; font-size: 12px; font-weight: 600; color: var(--teal-dark); background-color: transparent; width: 160px;">
+                <option value="">-- Select --</option>
+                <option value="Indoor">Indoor</option>
+                <option value="Outdoor – Daylight">Outdoor – Daylight</option>
+                <option value="Outdoor – Night Light">Outdoor – Night Light</option>
+              </select>
+            </div>
           </div>
 
           <div class="dmg-matrix-layout">
@@ -488,7 +514,7 @@
 <div id="toast"></div>
 
 <script>
-const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2'];
+const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2','Location','Bodystyle','Prequote_Marking'];
 const CACHE_KEY_QUOTES = "NDAT_QUOTES_DATA_V6";
 const CACHE_KEY_ENTRIES = "NDAT_SAVED_ENTRIES_V6";
 const CACHE_KEY_IDX = "NDAT_CURRENT_IDX_V6";
@@ -723,11 +749,19 @@ function showScreen(id) {
 function renderMetaGrid(q) {
   const metaGrid = document.getElementById('meta-grid');
   const updatedAtDisplay = q.updatedAt ? convertUTCtoISTDateTime(q.updatedAt) : '—';
+  const bodystyleHtml = q.bodystyle
+    ? `<div class="meta-item"><span class="meta-label">Bodystyle</span><span class="meta-val">${q.bodystyle}</span></div>`
+    : '';
+  const prequoteColor = q.prequoteMarking === 'Disabled' ? 'var(--red)' : 'var(--green)';
+  const prequoteHtml = q.prequoteMarking
+    ? `<div class="meta-item"><span class="meta-label">PQ Marking</span><span class="meta-val" style="color:${prequoteColor};font-weight:700;">${q.prequoteMarking}</span></div>`
+    : '';
   metaGrid.innerHTML = `
     <div class="meta-item"><span class="meta-label">Date (IST)</span><span class="meta-val">${q.date || '—'}</span></div>
     <div class="meta-item"><span class="meta-label">Dealer</span><span class="meta-val">${q.dealer || '—'}</span></div>
     <div class="meta-item"><span class="meta-label">Quote_ID</span><span class="meta-val">${q.qid || '—'}</span></div>
     <div class="meta-item"><span class="meta-label">Updated At (IST)</span><span class="meta-val">${updatedAtDisplay}</span></div>
+    ${bodystyleHtml}${prequoteHtml}
   `;
 }
 
@@ -765,12 +799,14 @@ function renderQuote() {
   if (saved) {
     document.getElementById('f-flow').value = saved.flow || 'Autoflow';
     document.getElementById('f-validator').value = saved.validator || '';
+    document.getElementById('f-location').value = saved.location || '';
     document.getElementById('damage-rows').innerHTML = '';
     if(!saved.rows || saved.rows.length === 0) addDamageRow();
     else saved.rows.forEach(r => addDamageRow(r));
   } else {
     document.getElementById('f-flow').value = 'Autoflow';
     document.getElementById('f-validator').value = '';
+    document.getElementById('f-location').value = '';
     document.getElementById('damage-rows').innerHTML = '';
     addDamageRow();
   }
@@ -949,8 +985,10 @@ async function handleSmartPaste() {
       
       executeRowParsingSequence(packagedData.assessmentRowsText || '');
 
-      if (packagedData.updatedAt && quotes[currentIdx]) {
-        quotes[currentIdx].updatedAt = packagedData.updatedAt;
+      if (quotes[currentIdx]) {
+        if (packagedData.updatedAt) quotes[currentIdx].updatedAt = packagedData.updatedAt;
+        if (packagedData.bodystyle) quotes[currentIdx].bodystyle = packagedData.bodystyle;
+        if (packagedData.prequoteMarking) quotes[currentIdx].prequoteMarking = packagedData.prequoteMarking;
         renderMetaGrid(quotes[currentIdx]);
         syncToLocalStorage();
       }
@@ -1028,6 +1066,7 @@ function collectCurrentState() {
   return {
     flow: document.getElementById('f-flow').value,
     validator: document.getElementById('f-validator').value.trim(),
+    location: document.getElementById('f-location').value,
     rows: rows
   };
 }
@@ -1055,6 +1094,7 @@ function skipQuote() {
   savedEntries[currentIdx] = { 
     flow: document.getElementById('f-flow').value, 
     validator: document.getElementById('f-validator').value.trim(),
+    location: document.getElementById('f-location').value,
     rows: [] 
   };
   syncToLocalStorage();
@@ -1110,7 +1150,7 @@ function buildOutputCSV() {
         q.date, q.oid, q.created, q.dealer, q.qid, q.link, entry.flow,
         r.angle, r.panel, r.damage, r.dmgid, '', r.note, r.issue, r.intensity, r.remarks || '',
         entry.validator || '', r.pqLink || '', r.pqFlow || '', r.pqValidator || '',
-        q.updatedAt || '', r.issue2 || ''
+        q.updatedAt || '', r.issue2 || '', entry.location || '', q.bodystyle || '', q.prequoteMarking || ''
       ].join('\t'));
     });
   });
