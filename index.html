@@ -525,7 +525,7 @@ let savedEntries = {};
 let rowCounter = 0;
 
 const REMARKS_PRESETS = {
-  "Damage not Confirmable in Prequote": ["", "Not Clear / Evident", "Low Visibility", "Image Angle", "Others"],
+  "Damage not Confirmable in Prequote": ["", "Not Clear / Evident", "Low Visibility", "Image Angle", "Damage Angle", "Very Minor", "Distant Image", "Looks like FP", "Looks Like Dirt", "Others"],
   "Poor Image in Prequote": ["", "Dark", "Blur", "Others"],
   "Tech Issue": ["", "FP Damage without Mask", "Dislodged BB", "Others"],
   "User Issue": ["Wrong LP Number", "Different Vehicle Images"]
@@ -879,6 +879,9 @@ function addDamageRow(prefill) {
       <option value="cq removed"${p.issue2 === 'cq removed' ? ' selected' : ''}>cq removed</option>
       <option value="pq removed"${p.issue2 === 'pq removed' ? ' selected' : ''}>pq removed</option>
       <option value="cq fn"${p.issue2 === 'cq fn' ? ' selected' : ''}>cq fn</option>
+      <option value="minor as new"${p.issue2 === 'minor as new' ? ' selected' : ''}>minor as new</option>
+      <option value="Validator Critical Error"${p.issue2 === 'Validator Critical Error' ? ' selected' : ''}>Validator Critical Error</option>
+      <option value="System Critical Error"${p.issue2 === 'System Critical Error' ? ' selected' : ''}>System Critical Error</option>
     </select>
     <input type="text" class="f-note" value="${p.note || ''}" placeholder="Notes..." oninput="saveCurrentState()">
     <button class="btn-del" onclick="removeRow('${id}')">×</button>
