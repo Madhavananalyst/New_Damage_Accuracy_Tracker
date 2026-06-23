@@ -876,6 +876,7 @@ function addDamageRow(prefill) {
     
     <select class="f-issue2" onchange="saveCurrentState()">
       <option value="">--</option>
+      <option value="post quote error"${p.issue2 === 'post quote error' ? ' selected' : ''}>post quote error</option>
       <option value="cq removed"${p.issue2 === 'cq removed' ? ' selected' : ''}>cq removed</option>
       <option value="pq removed"${p.issue2 === 'pq removed' ? ' selected' : ''}>pq removed</option>
       <option value="cq fn"${p.issue2 === 'cq fn' ? ' selected' : ''}>cq fn</option>
