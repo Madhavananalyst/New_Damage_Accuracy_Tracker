@@ -139,9 +139,9 @@
   
   .dmg-matrix-layout { width: 100%; overflow-x: auto; }
   
-  /* GRID LAYOUT: 15 Columns to fit PQ Link, PQ Flow, PQ Validator, PQ Paste, Issue_2 */
-  .dmg-header { display: grid; grid-template-columns: 35px 55px 108px 98px 88px 148px 74px 108px 98px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; padding: 0 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); border-bottom: 2px solid var(--border); min-width: 1369px; }
-  .dmg-row { display: grid; grid-template-columns: 35px 55px 108px 98px 88px 148px 74px 108px 98px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; margin-top: 8px; min-width: 1369px; }
+  /* GRID LAYOUT: 19 Columns to fit PQ Link, PQ Flow, PQ Validator, PQ Paste, Post Link, Post Flow, Post Validator, Post Paste, Issue_2 */
+  .dmg-header { display: grid; grid-template-columns: 35px 55px 108px 98px 88px minmax(148px,1.7fr) 74px minmax(108px,1.3fr) 70px 74px 78px 63px 70px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; padding: 0 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); border-bottom: 2px solid var(--border); min-width: 1682px; width: 100%; }
+  .dmg-row { display: grid; grid-template-columns: 35px 55px 108px 98px 88px minmax(148px,1.7fr) 74px minmax(108px,1.3fr) 70px 74px 78px 63px 70px 74px 78px 63px 98px 98px 28px; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; margin-top: 8px; min-width: 1682px; width: 100%; }
   
   .dmg-row input, .dmg-row select { width: 100%; font-size: 12px; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
   .row-num { width: 24px; height: 24px; border-radius: 6px; background: var(--surface-alt); color: var(--text-muted); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
@@ -161,6 +161,24 @@
 
   .btn-pqpaste { background: var(--teal-light); color: var(--teal-dark); border: 1px solid var(--teal); border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; padding: 6px 4px; width: 100%; height: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .btn-pqpaste:hover { background: var(--teal); color: #fff; }
+
+  .btn-postpaste { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--text-light); border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; padding: 6px 4px; width: 100%; height: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-postpaste:hover { background: var(--text-muted); color: #fff; }
+
+  /* ── POST-QUOTE FIELDS: hidden by default, revealed via global toggle button ─── */
+  .col-postlink, .col-postflow, .col-postvalidator, .col-postpaste,
+  .f-postlink, .f-postflow, .f-postvalidator, .btn-postpaste {
+    display: none;
+  }
+  [data-post="on"] .col-postlink, [data-post="on"] .col-postflow,
+  [data-post="on"] .col-postvalidator, [data-post="on"] .col-postpaste {
+    display: block;
+  }
+  [data-post="on"] .f-postlink, [data-post="on"] .f-postflow,
+  [data-post="on"] .f-postvalidator, [data-post="on"] .btn-postpaste {
+    display: block;
+  }
+  #post-toggle-btn.active { background: var(--green); border-color: var(--green); }
 
   /* COMPACT HORIZONTAL TRACKER SECTION */
   .sidebar { width: 100%; padding: 0.75rem 1rem !important; margin-top: 0.75rem; }
@@ -227,11 +245,17 @@
   [data-focus="on"] .col-angles,
   [data-focus="on"] .col-pqflow,
   [data-focus="on"] .col-pqvalidator,
+  [data-focus="on"] .col-postflow,
+  [data-focus="on"] .col-postvalidator,
   [data-focus="on"] .f-angle,
   [data-focus="on"] .f-pqflow,
-  [data-focus="on"] .f-pqvalidator { 
+  [data-focus="on"] .f-pqvalidator,
+  [data-focus="on"] .f-postflow,
+  [data-focus="on"] .f-postvalidator { 
     display: none !important; 
   }
+
+  .focus-qid-tag { display: none; }
 
   /* Focus Mode: Inline Action Line (Open Report + Paste Button) */
   [data-focus="on"] .paste-box-inline-container {
@@ -245,9 +269,23 @@
     margin-bottom: 1.25rem;
   }
 
-  /* Hide everything inside the paste container EXCEPT the Paste Button, Report button, and Location field */
-  [data-focus="on"] .paste-box-inline-container > *:not(button[onclick="handleSmartPaste()"]):not(#quote-link):not(#location-inline-field) {
+  /* Hide everything inside the paste container EXCEPT the Paste Button, Report button, Quote ID tag, and Location field */
+  [data-focus="on"] .paste-box-inline-container > *:not(button[onclick="handleSmartPaste()"]):not(#quote-link):not(#location-inline-field):not(#focus-qid-tag) {
     display: none !important;
+  }
+
+  [data-focus="on"] .focus-qid-tag {
+    display: inline-flex !important;
+    align-items: center;
+    height: 36px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    background: var(--teal-light);
+    padding: 0 14px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   /* Ensure location field shows inline-flex in focus mode, pushed to far right */
@@ -259,12 +297,14 @@
   /* Ensure the link displays properly as a standard button block in flex */
   [data-focus="on"] #quote-link {
     display: inline-flex !important;
+    height: 36px;
+    box-sizing: border-box;
   }
 
   /* 13-Column wide breakdown matrix row parameters in Focus (Widen evenly using proportional 1fr blocks) */
   [data-focus="on"] .dmg-header,
   [data-focus="on"] .dmg-row {
-    grid-template-columns: 45px 2fr 2fr 2fr 3fr 1.5fr 2fr 3fr 1.5fr 2fr 2fr 1fr 35px;
+    grid-template-columns: 45px 2fr 2fr 2fr 3.5fr 1.5fr 2.5fr 2fr 1.5fr 2fr 1.5fr 2fr 2fr 35px;
     min-width: 0;
     width: 100%;
   }
@@ -378,7 +418,8 @@
             <span class="theme-slider"></span>
           </label>
         </div>
-        <button class="btn btn-primary btn-sm" style="background-color: var(--green); border-color: var(--green);" onclick="goToDone()">Save &amp; Compile Batch</button>
+        <button class="btn btn-primary btn-sm" id="post-toggle-btn" style="background-color: var(--green); border-color: var(--green); height: 32px;" onclick="togglePostFields()">Post Quote Fields</button>
+        <button class="btn btn-primary btn-sm" style="background-color: var(--green); border-color: var(--green); height: 32px;" onclick="goToDone()">Save &amp; Compile Batch</button>
         <button class="btn btn-danger btn-sm" onclick="if(confirm('Clear current workspace? This wipes localized cached parameters.')) resetAll()">Reset</button>
       </div>
     </div>
@@ -422,6 +463,7 @@
             </div>
 
             <button class="btn btn-primary btn-sm" style="padding: 6px 14px; height: 36px; font-weight:600;" onclick="handleSmartPaste()">📋 Paste</button>
+            <span id="focus-qid-tag" class="focus-qid-tag"></span>
 
             <div class="validator-inline-field" style="height: 36px;" id="location-inline-field">
               <label for="f-location">Location</label>
@@ -448,6 +490,10 @@
               <span class="col-pqflow">PQ Flow</span>
               <span class="col-pqvalidator">PQ Validator</span>
               <span>PQ Paste</span>
+              <span class="col-postlink">Post Link</span>
+              <span class="col-postflow">Post Flow</span>
+              <span class="col-postvalidator">Post Validator</span>
+              <span class="col-postpaste">Post Paste</span>
               <span>Issue_2</span>
               <span>Note</span>
               <span></span>
@@ -464,7 +510,7 @@
         <div class="action-bar">
           <div class="action-left">
             <button class="btn btn-secondary" onclick="prevQuote()" id="btn-prev">← Previous</button>
-            <button class="btn btn-danger btn-sm" onclick="skipQuote()">Skip Quote</button>
+            <button class="btn btn-danger" onclick="skipQuote()">Skip Quote</button>
           </div>
           <div class="action-right">
             <span id="save-status" style="font-size: 12px; font-weight: 500; color: var(--text-light)"></span>
@@ -514,7 +560,7 @@
 <div id="toast"></div>
 
 <script>
-const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2','Location','Bodystyle','Prequote_Marking'];
+const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2','Location','Bodystyle','Prequote_Marking','Post_Link','Post_Flow','Post_Validator'];
 const CACHE_KEY_QUOTES = "NDAT_QUOTES_DATA_V6";
 const CACHE_KEY_ENTRIES = "NDAT_SAVED_ENTRIES_V6";
 const CACHE_KEY_IDX = "NDAT_CURRENT_IDX_V6";
@@ -552,6 +598,13 @@ window.addEventListener('DOMContentLoaded', () => {
       if(pasteContainer && reportLink) pasteContainer.prepend(reportLink);
     }, 50);
   }
+  const savedPost = localStorage.getItem('NDAT_POSTFIELDS');
+  if (savedPost === 'on') {
+    document.documentElement.setAttribute('data-post', 'on');
+    const postBtn = document.getElementById('post-toggle-btn');
+    postBtn.classList.add('active');
+    postBtn.textContent = 'Post Quote Fields ✓';
+  }
 });
 
 function toggleTheme() {
@@ -584,6 +637,22 @@ function toggleFocus() {
     
     // Snap report link inside inline layout container line right beside paste button
     if (pasteContainer && reportLink) pasteContainer.prepend(reportLink);
+  }
+}
+
+function togglePostFields() {
+  const isOn = document.documentElement.getAttribute('data-post') === 'on';
+  const btn = document.getElementById('post-toggle-btn');
+  if (isOn) {
+    document.documentElement.removeAttribute('data-post');
+    localStorage.setItem('NDAT_POSTFIELDS', 'off');
+    btn.classList.remove('active');
+    btn.textContent = 'Post Quote Fields';
+  } else {
+    document.documentElement.setAttribute('data-post', 'on');
+    localStorage.setItem('NDAT_POSTFIELDS', 'on');
+    btn.classList.add('active');
+    btn.textContent = 'Post Quote Fields ✓';
   }
 }
 
@@ -777,6 +846,7 @@ function renderQuote() {
   document.getElementById('btn-prev').disabled = currentIdx === 0;
 
   renderMetaGrid(q);
+  document.getElementById('focus-qid-tag').textContent = q.qid || '';
 
   const linkEl = document.getElementById('quote-link');
   linkEl.href = q.link || '#';
@@ -849,13 +919,14 @@ function addDamageRow(prefill) {
   const issueOpts = ISSUE_OPTIONS.map(o => `<option value="${o}"${selectedIssue === o ? ' selected' : ''}>${o}</option>`).join('');
   const selectedIntensity = p.intensity || 'Minor';
   const selectedPQFlow = p.pqFlow || '';
+  const selectedPostFlow = p.postFlow || '';
   
   row.innerHTML = `
     <div class="row-num">${idx}</div>
     <input type="number" class="f-angle" min="1" max="20" value="${p.angle || ''}" placeholder="#">
-    <input type="text" class="f-panel" value="${p.panel || ''}" placeholder="Panel name">
-    <input type="text" class="f-damage" value="${p.damage || ''}" placeholder="Damage profile" oninput="saveCurrentState()">
-    <input type="text" class="f-dmgid" value="${p.dmgid || ''}" placeholder="ID hash Key">
+    <input type="text" class="f-panel" value="${p.panel || ''}" placeholder="Panel">
+    <input type="text" class="f-damage" value="${p.damage || ''}" placeholder="Damage" oninput="saveCurrentState()">
+    <input type="text" class="f-dmgid" value="${p.dmgid || ''}" placeholder="ID">
     <select class="f-issue" onchange="handleIssueChange('${id}')">
       ${issueOpts}
     </select>
@@ -865,14 +936,23 @@ function addDamageRow(prefill) {
     </select>
     <div class="remarks-container-slot" id="rem-slot-${id}"></div>
     
-    <input type="text" class="f-pqlink" value="${p.pqLink || ''}" placeholder="PQ Link Url" oninput="saveCurrentState()">
+    <input type="text" class="f-pqlink" value="${p.pqLink || ''}" placeholder="PQ Link" oninput="saveCurrentState()">
     <select class="f-pqflow" onchange="saveCurrentState()">
       <option value=""${selectedPQFlow === '' ? ' selected' : ''}>-- Select Flow --</option>
       <option value="Autoflow"${selectedPQFlow === 'Autoflow' ? ' selected' : ''}>Autoflow</option>
       <option value="Manual"${selectedPQFlow === 'Manual' ? ' selected' : ''}>Manual</option>
     </select>
-    <input type="text" class="f-pqvalidator" value="${p.pqValidator || ''}" placeholder="PQ Validator" oninput="saveCurrentState()">
+    <input type="text" class="f-pqvalidator" value="${p.pqValidator || ''}" placeholder="Validator" oninput="saveCurrentState()">
     <button class="btn-pqpaste" onclick="handlePQPaste('${id}')" title="Paste PQ Link/Flow/Validator from clipboard">PQ Paste</button>
+
+    <input type="text" class="f-postlink" value="${p.postLink || ''}" placeholder="Post Link" oninput="saveCurrentState()">
+    <select class="f-postflow" onchange="saveCurrentState()">
+      <option value=""${selectedPostFlow === '' ? ' selected' : ''}>-- Select Flow --</option>
+      <option value="Autoflow"${selectedPostFlow === 'Autoflow' ? ' selected' : ''}>Autoflow</option>
+      <option value="Manual"${selectedPostFlow === 'Manual' ? ' selected' : ''}>Manual</option>
+    </select>
+    <input type="text" class="f-postvalidator" value="${p.postValidator || ''}" placeholder="Validator" oninput="saveCurrentState()">
+    <button class="btn-postpaste" onclick="handlePostPaste('${id}')" title="Paste Post Link/Flow/Validator from clipboard">Post Paste</button>
     
     <select class="f-issue2" onchange="saveCurrentState()">
       <option value="">--</option>
@@ -883,8 +963,9 @@ function addDamageRow(prefill) {
       <option value="minor as new"${p.issue2 === 'minor as new' ? ' selected' : ''}>minor as new</option>
       <option value="Validator Critical Error"${p.issue2 === 'Validator Critical Error' ? ' selected' : ''}>Validator Critical Error</option>
       <option value="System Critical Error"${p.issue2 === 'System Critical Error' ? ' selected' : ''}>System Critical Error</option>
+      <option value="new instead of Existing"${p.issue2 === 'new instead of Existing' ? ' selected' : ''}>new instead of Existing</option>
     </select>
-    <input type="text" class="f-note" value="${p.note || ''}" placeholder="Notes..." oninput="saveCurrentState()">
+    <input type="text" class="f-note" value="${p.note || ''}" placeholder="Notes" oninput="saveCurrentState()">
     <button class="btn-del" onclick="removeRow('${id}')">×</button>
   `;
   document.getElementById('damage-rows').appendChild(row);
@@ -1044,6 +1125,41 @@ async function handlePQPaste(rowId) {
   }
 }
 
+async function handlePostPaste(rowId) {
+  try {
+    const clipboardText = await navigator.clipboard.readText();
+    const cleanText = clipboardText.trim();
+
+    if (!cleanText) {
+      toast('Clipboard is empty!');
+      return;
+    }
+
+    if (!cleanText.startsWith('{"isClearQuotePQBundle":true')) {
+      toast('Clipboard does not contain Post Quote Details data.');
+      return;
+    }
+
+    const packagedData = JSON.parse(cleanText);
+    const rowEl = document.getElementById(rowId);
+    if (!rowEl) return;
+
+    const postLinkEl = rowEl.querySelector('.f-postlink');
+    const postFlowEl = rowEl.querySelector('.f-postflow');
+    const postValidatorEl = rowEl.querySelector('.f-postvalidator');
+
+    if (postLinkEl) postLinkEl.value = packagedData.pqLink || '';
+    if (postFlowEl) postFlowEl.value = packagedData.pqFlow || '';
+    if (postValidatorEl) postValidatorEl.value = packagedData.pqValidator || '';
+
+    saveCurrentState();
+    toast('✓ Post details pasted into row');
+  } catch (err) {
+    console.error('Post paste error:', err);
+    toast('Clipboard reading access restricted.');
+  }
+}
+
 function collectCurrentState() {
   const rows = [];
   document.querySelectorAll('.dmg-row').forEach(r => {
@@ -1061,6 +1177,10 @@ function collectCurrentState() {
         pqLink: r.querySelector('.f-pqlink').value.trim(),
         pqFlow: r.querySelector('.f-pqflow').value,
         pqValidator: r.querySelector('.f-pqvalidator').value.trim(),
+
+        postLink: r.querySelector('.f-postlink').value.trim(),
+        postFlow: r.querySelector('.f-postflow').value,
+        postValidator: r.querySelector('.f-postvalidator').value.trim(),
         
         issue2: r.querySelector('.f-issue2').value.trim(),
         note: r.querySelector('.f-note').value.trim(),
@@ -1154,7 +1274,8 @@ function buildOutputCSV() {
         q.date, q.oid, q.created, q.dealer, q.qid, q.link, entry.flow,
         r.angle, r.panel, r.damage, r.dmgid, '', r.note, r.issue, r.intensity, r.remarks || '',
         entry.validator || '', r.pqLink || '', r.pqFlow || '', r.pqValidator || '',
-        q.updatedAt || '', r.issue2 || '', entry.location || '', q.bodystyle || '', q.prequoteMarking || ''
+        q.updatedAt || '', r.issue2 || '', entry.location || '', q.bodystyle || '', q.prequoteMarking || '',
+        r.postLink || '', r.postFlow || '', r.postValidator || ''
       ].join('\t'));
     });
   });
