@@ -560,15 +560,17 @@
 <div id="toast"></div>
 
 <script>
-const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2','Location','Bodystyle','Prequote_Marking','Post_Link','Post_Flow','Post_Validator'];
+const OUTPUT_HEADERS = ['Date','Object_ID','createdOn','Dealer','Quote_ID','Quote_Link','Flow','Angles','Panel_Name','Damage','Damage_ID','Status','Note','Issue','Damage_Intensity','Remarks','Validator','PQ_Link','PQ_Flow','PQ_Validator','Updated_At','Issue_2','Location','Bodystyle','Prequote_Marking','Post_Link','Post_Flow','Post_Validator','Prod'];
 const CACHE_KEY_QUOTES = "NDAT_QUOTES_DATA_V6";
 const CACHE_KEY_ENTRIES = "NDAT_SAVED_ENTRIES_V6";
 const CACHE_KEY_IDX = "NDAT_CURRENT_IDX_V6";
+const CACHE_KEY_REGION = "NDAT_SELECTED_REGION_V6";
 
 let quotes = [];
 let currentIdx = 0;
 let savedEntries = {}; 
 let rowCounter = 0;
+let selectedRegion = 'eu';
 
 const REMARKS_PRESETS = {
   "Damage not Confirmable in Prequote": ["", "Not Clear / Evident", "Low Visibility", "Image Angle", "Damage Angle", "Very Minor", "Distant Image", "Looks like FP", "Looks Like Dirt", "Covered by Dirt", "Unclear Image", "Reflection", "Non Closeup ORVM", "Night Light", "Non Ideal Image", "Others"],
@@ -669,6 +671,7 @@ function loadSavedCache() {
     quotes = JSON.parse(localStorage.getItem(CACHE_KEY_QUOTES)) || [];
     savedEntries = JSON.parse(localStorage.getItem(CACHE_KEY_ENTRIES)) || {};
     currentIdx = parseInt(localStorage.getItem(CACHE_KEY_IDX) || '0', 10);
+    selectedRegion = localStorage.getItem(CACHE_KEY_REGION) || 'eu';
     
     if (quotes.length > 0) {
       showScreen('screen-entry');
@@ -778,7 +781,8 @@ function parseAndStart(text, isHeaderless) {
     payloadLines = lines.slice(1);
   }
 
-  const selectedRegion = document.getElementById('cluster-region').value;
+  selectedRegion = document.getElementById('cluster-region').value;
+  localStorage.setItem(CACHE_KEY_REGION, selectedRegion);
   const baseReportUrl = `https://${selectedRegion}.clearquote.io/#/pages/analyzed/report/`;
 
   quotes = payloadLines.map(line => {
@@ -1275,7 +1279,7 @@ function buildOutputCSV() {
         r.angle, r.panel, r.damage, r.dmgid, '', r.note, r.issue, r.intensity, r.remarks || '',
         entry.validator || '', r.pqLink || '', r.pqFlow || '', r.pqValidator || '',
         q.updatedAt || '', r.issue2 || '', entry.location || '', q.bodystyle || '', q.prequoteMarking || '',
-        r.postLink || '', r.postFlow || '', r.postValidator || ''
+        r.postLink || '', r.postFlow || '', r.postValidator || '', (selectedRegion || 'eu').toUpperCase()
       ].join('\t'));
     });
   });
@@ -1319,7 +1323,8 @@ function resetAll() {
   localStorage.removeItem(CACHE_KEY_QUOTES);
   localStorage.removeItem(CACHE_KEY_ENTRIES);
   localStorage.removeItem(CACHE_KEY_IDX);
-  quotes = []; savedEntries = {}; currentIdx = 0;
+  localStorage.removeItem(CACHE_KEY_REGION);
+  quotes = []; savedEntries = {}; currentIdx = 0; selectedRegion = 'eu';
   document.getElementById('paste-input').value = '';
   document.getElementById('setup-error').textContent = '';
   document.getElementById('setup-cache').style.display = 'none';
